@@ -34,6 +34,13 @@ ACCESS_TOKEN=your_access_token
 REFRESH_TOKEN=your_refresh_token
 ```
 
+Legacy names are also supported:
+
+```sh
+ACCESSTOKEN=your_access_token
+REFRESHTOKEN=your_refresh_token
+```
+
 Then run:
 
 ```sh
@@ -43,6 +50,12 @@ docker compose up --build
 The container generates `/env-config.js` at startup from env vars, so you can change values and restart the container without rebuilding the image.
 
 To verify values are injected, open `http://localhost:8080/env-config.js`.
+
+If values still look empty, recreate the container (not only restart):
+
+```sh
+docker compose up -d --build --force-recreate
+```
 
 Then open http://localhost:8080
 

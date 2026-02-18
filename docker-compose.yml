@@ -6,6 +6,8 @@ services:
       VITE_REFRESH_TOKEN: ${VITE_REFRESH_TOKEN:-}
       ACCESS_TOKEN: ${ACCESS_TOKEN:-}
       REFRESH_TOKEN: ${REFRESH_TOKEN:-}
+      ACCESSTOKEN: ${ACCESSTOKEN:-}
+      REFRESHTOKEN: ${REFRESHTOKEN:-}
     ports:
       - "8080:80"
     restart: unless-stopped
