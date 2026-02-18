@@ -6,6 +6,7 @@ import { Search } from "lucide-react";
 import { Skeleton } from "./ui/Skeleton";
 import { calculateBillingMetrics } from "../utils/billingCalculations";
 import type { Invoice } from "../types/invoice";
+import { useAmountDisplayStore } from "../store/useAmountDisplayStore";
 
 type StatusFilter = "all" | "overdue" | "unpaid" | "paid";
 type DatePreset = "all" | "30" | "90" | "365";
@@ -15,6 +16,7 @@ export const InvoiceTable = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [datePreset, setDatePreset] = useState<DatePreset>("all");
+  const amountDisplayMode = useAmountDisplayStore((state) => state.mode);
   const navigate = useNavigate();
 
   const formatCurrency = (val: number) =>
@@ -64,6 +66,13 @@ export const InvoiceTable = () => {
   }, [invoices, search, matchesStatus, matchesDatePreset]);
 
   const metrics = calculateBillingMetrics(filteredInvoices);
+  const metricsExclVat = calculateBillingMetrics(filteredInvoices, "exclVat");
+  const amountColumnLabel =
+    amountDisplayMode === "both"
+      ? "Beløb"
+      : amountDisplayMode === "exclVat"
+        ? "Beløb ekskl. moms"
+        : "Beløb inkl. moms";
   const totalRows = filteredInvoices.length;
 
   if (isLoading)
@@ -155,8 +164,37 @@ export const InvoiceTable = () => {
           <span>
             Viser {totalRows} {totalRows === 1 ? "faktura" : "fakturaer"}
           </span>
-          <span>Åben saldo {formatCurrency(metrics.balanceDue)}</span>
-          <span>Gns. {formatCurrency(metrics.averageInvoice)}</span>
+          {amountDisplayMode === "both" ? (
+            <>
+              <span>
+                Åben saldo {formatCurrency(metrics.balanceDue)} inkl. moms /{" "}
+                {formatCurrency(metricsExclVat.balanceDue)} ekskl. moms
+              </span>
+              <span>
+                Gns. {formatCurrency(metrics.averageInvoice)} inkl. moms /{" "}
+                {formatCurrency(metricsExclVat.averageInvoice)} ekskl. moms
+              </span>
+            </>
+          ) : amountDisplayMode === "exclVat" ? (
+            <>
+              <span>
+                Åben saldo {formatCurrency(metricsExclVat.balanceDue)} ekskl.
+                moms
+              </span>
+              <span>
+                Gns. {formatCurrency(metricsExclVat.averageInvoice)} ekskl. moms
+              </span>
+            </>
+          ) : (
+            <>
+              <span>
+                Åben saldo {formatCurrency(metrics.balanceDue)} inkl. moms
+              </span>
+              <span>
+                Gns. {formatCurrency(metrics.averageInvoice)} inkl. moms
+              </span>
+            </>
+          )}
         </div>
       </div>
 
@@ -167,7 +205,7 @@ export const InvoiceTable = () => {
               <th className="px-6 py-3">Faktura nr.</th>
               <th className="px-6 py-3">Dato</th>
               <th className="px-6 py-3">Status</th>
-              <th className="px-6 py-3 text-right">Beløb</th>
+              <th className="px-6 py-3 text-right">{amountColumnLabel}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 bg-white/80">
@@ -201,7 +239,22 @@ export const InvoiceTable = () => {
                   </span>
                 </td>
                 <td className="px-6 py-3 text-right font-mono text-sm text-slate-900">
-                  {formatCurrency(invoice.amount)}
+                  {amountDisplayMode === "both" ? (
+                    <>
+                      <div>
+                        {formatCurrency(invoice.amountInclVat)} inkl. moms
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {formatCurrency(invoice.amount)} ekskl. moms
+                      </div>
+                    </>
+                  ) : amountDisplayMode === "exclVat" ? (
+                    <div>{formatCurrency(invoice.amount)} ekskl. moms</div>
+                  ) : (
+                    <div>
+                      {formatCurrency(invoice.amountInclVat)} inkl. moms
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}

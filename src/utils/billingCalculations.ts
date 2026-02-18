@@ -15,10 +15,13 @@ export type BillingMetrics = {
   openInvoiceCount: number;
 };
 
+export type BillingAmountMode = "inclVat" | "exclVat";
+
 const getIsoMonth = (value: string) => value.slice(0, 7);
 
 export const calculateBillingMetrics = (
   invoices: Invoice[] | null | undefined = [],
+  amountMode: BillingAmountMode = "inclVat",
 ): BillingMetrics => {
   const safeInvoices: Invoice[] = Array.isArray(invoices) ? invoices : [];
   const now = new Date();
@@ -26,7 +29,10 @@ export const calculateBillingMetrics = (
 
   const aggregate = safeInvoices.reduce(
     (acc, inv) => {
-      const amount = inv.amount ?? inv.amount ?? 0;
+      const amount =
+        amountMode === "inclVat"
+          ? (inv.amountInclVat ?? inv.amount ?? 0)
+          : (inv.amount ?? inv.amountInclVat ?? 0);
       acc.totalInvoiced += amount;
       acc.invoiceCount += 1;
       acc.invoiceAmountSum += amount;

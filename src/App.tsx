@@ -9,6 +9,10 @@ import {
   useApiHealthStore,
   type ApiHealthStatus,
 } from "./store/useApiHealthStore";
+import {
+  useAmountDisplayStore,
+  type AmountDisplayMode,
+} from "./store/useAmountDisplayStore";
 
 const queryClient = new QueryClient();
 
@@ -17,21 +21,28 @@ const apiStatusBadgeConfig: Record<
   { label: string; pillClass: string; dotClass: string }
 > = {
   connected: {
-    label: "API forbundet",
+    label: "Billing API forbundet",
     pillClass: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700",
     dotClass: "bg-emerald-500",
   },
   disconnected: {
-    label: "API utilgængelig",
+    label: "Billing API utilgængelig",
     pillClass: "border-rose-500/40 bg-rose-500/10 text-rose-700",
     dotClass: "bg-rose-500 animate-pulse",
   },
   unknown: {
-    label: "API-status ukendt",
+    label: "Billing API status ukendt",
     pillClass: "border-slate-300 bg-white text-slate-500",
     dotClass: "bg-slate-400",
   },
 };
+
+const amountDisplayOptions: Array<{ value: AmountDisplayMode; label: string }> =
+  [
+    { value: "inclVat", label: "Inkl. moms" },
+    { value: "exclVat", label: "Ekskl. moms" },
+    { value: "both", label: "Begge" },
+  ];
 
 function DashboardPage() {
   return (
@@ -57,6 +68,8 @@ function DashboardPage() {
 
 export default function App() {
   const apiStatus = useApiHealthStore((state) => state.status);
+  const amountDisplayMode = useAmountDisplayStore((state) => state.mode);
+  const setAmountDisplayMode = useAmountDisplayStore((state) => state.setMode);
   const statusBadge =
     apiStatusBadgeConfig[apiStatus] ?? apiStatusBadgeConfig.unknown;
 
@@ -78,7 +91,23 @@ export default function App() {
                   Automatiseret fakturahåndtering for partner{" "}
                   <span className="font-mono text-slate-700">ipnordic A/S</span>
                 </p>
-                <div className="mt-3 flex items-center justify-end gap-3">
+                <div className="mt-3 flex flex-wrap items-center justify-end gap-3">
+                  <div className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white/90 p-1 text-xs font-medium text-slate-600">
+                    {amountDisplayOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setAmountDisplayMode(option.value)}
+                        className={`rounded-full px-2.5 py-1 transition-colors ${
+                          amountDisplayMode === option.value
+                            ? "bg-slate-900 text-white"
+                            : "text-slate-600 hover:bg-slate-100"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
                   <span
                     role="status"
                     aria-live="polite"

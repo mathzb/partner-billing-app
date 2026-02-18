@@ -20,6 +20,7 @@ import { Button } from "../components/ui/Button";
 import { Skeleton } from "../components/ui/Skeleton";
 import { useInvoiceDetail } from "../hooks/useInvoiceDetail";
 import { useTenantDiscounts } from "../hooks/useTenantDiscounts";
+import { useAmountDisplayStore } from "../store/useAmountDisplayStore";
 import type { InvoiceTenantBreakdown } from "../types/invoice";
 import {
   aggregateVendorsFromSubscriptions,
@@ -170,6 +171,7 @@ const buildWlOptions = (
 
 export const InvoiceDetailPage = () => {
   const { invoiceNo } = useParams<{ invoiceNo: string }>();
+  const amountDisplayMode = useAmountDisplayStore((state) => state.mode);
   const {
     data: detail,
     isLoading,
@@ -932,7 +934,11 @@ export const InvoiceDetailPage = () => {
             </span>
           </div>
           <p className="text-sm font-semibold text-gray-900">
-            {formatCurrency(detail.amount)} ekskl. moms
+            {amountDisplayMode === "both"
+              ? `${formatCurrency(detail.amountInclVat)} inkl. moms / ${formatCurrency(detail.amount)} ekskl. moms`
+              : amountDisplayMode === "exclVat"
+                ? `${formatCurrency(detail.amount)} ekskl. moms`
+                : `${formatCurrency(detail.amountInclVat)} inkl. moms`}
           </p>
 
           <div className="flex justify-end gap-2 pt-1">
