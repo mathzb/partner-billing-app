@@ -4,6 +4,8 @@ services:
     environment:
       VITE_ACCESS_TOKEN: ${VITE_ACCESS_TOKEN:-}
       VITE_REFRESH_TOKEN: ${VITE_REFRESH_TOKEN:-}
+      ACCESS_TOKEN: ${ACCESS_TOKEN:-}
+      REFRESH_TOKEN: ${REFRESH_TOKEN:-}
     ports:
       - "8080:80"
     restart: unless-stopped

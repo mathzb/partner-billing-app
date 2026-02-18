@@ -27,6 +27,13 @@ VITE_ACCESS_TOKEN=your_access_token
 VITE_REFRESH_TOKEN=your_refresh_token
 ```
 
+Or use non-Vite names (also supported):
+
+```sh
+ACCESS_TOKEN=your_access_token
+REFRESH_TOKEN=your_refresh_token
+```
+
 Then run:
 
 ```sh
@@ -34,6 +41,8 @@ docker compose up --build
 ```
 
 The container generates `/env-config.js` at startup from env vars, so you can change values and restart the container without rebuilding the image.
+
+To verify values are injected, open `http://localhost:8080/env-config.js`.
 
 Then open http://localhost:8080
 
