@@ -8,7 +8,10 @@ Build and run with Docker:
 
 ```sh
 docker build -t partner-billing-app .
-docker run --rm -p 8080:80 partner-billing-app
+docker run --rm -p 8080:80 \
+  -e VITE_ACCESS_TOKEN=your_access_token \
+  -e VITE_REFRESH_TOKEN=your_refresh_token \
+  partner-billing-app
 ```
 
 Or use Docker Compose:
@@ -16,6 +19,21 @@ Or use Docker Compose:
 ```sh
 docker compose up --build
 ```
+
+Docker Compose reads `.env` in the project root. Add:
+
+```sh
+VITE_ACCESS_TOKEN=your_access_token
+VITE_REFRESH_TOKEN=your_refresh_token
+```
+
+Then run:
+
+```sh
+docker compose up --build
+```
+
+The container generates `/env-config.js` at startup from env vars, so you can change values and restart the container without rebuilding the image.
 
 Then open http://localhost:8080
 
