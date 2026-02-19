@@ -554,17 +554,17 @@ export const InvoiceDetailPage = () => {
                   <Fragment key={key}>
                     <tr className="group hover:bg-gray-50">
                       <td className="px-3 py-2 align-top whitespace-normal">
-                        <button
-                          type="button"
-                          aria-expanded={isExpanded}
-                          aria-controls={`${key}-details`}
-                          className="flex w-full items-start justify-between gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
-                          onClick={() => toggleVendorExpansion(key)}
-                        >
-                          <span className="font-medium text-slate-800">
-                            {vendor.vendorName}
-                          </span>
-                          <span className="flex items-center gap-2">
+                        <div className="flex w-full items-start justify-between gap-3">
+                          <button
+                            type="button"
+                            aria-expanded={isExpanded}
+                            aria-controls={`${key}-details`}
+                            className="flex flex-1 items-start justify-between gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                            onClick={() => toggleVendorExpansion(key)}
+                          >
+                            <span className="font-medium text-slate-800">
+                              {vendor.vendorName}
+                            </span>
                             <span
                               className="inline-flex items-center gap-1 rounded-full border border-slate-300 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-600 shadow-sm transition-colors group-hover:border-slate-400 group-hover:text-slate-800"
                               role="presentation"
@@ -576,26 +576,21 @@ export const InvoiceDetailPage = () => {
                               )}
                               {isExpanded ? "Skjul detaljer" : "Vis detaljer"}
                             </span>
-                            <button
-                              type="button"
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                handleCopyVendor(
-                                  customer,
-                                  vendor,
-                                  vendorCopyKey,
-                                );
-                              }}
-                              className="inline-flex items-center rounded-full border border-slate-300 bg-white px-2.5 py-1 text-[10px] font-semibold text-slate-600 transition-colors hover:border-blue-400 hover:text-blue-700"
-                            >
-                              {vendorCopyState === "copied"
-                                ? "Kopieret"
-                                : vendorCopyState === "error"
-                                  ? "Fejl"
-                                  : "Kopier"}
-                            </button>
-                          </span>
-                        </button>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleCopyVendor(customer, vendor, vendorCopyKey);
+                            }}
+                            className="inline-flex items-center rounded-full border border-slate-300 bg-white px-2.5 py-1 text-[10px] font-semibold text-slate-600 transition-colors hover:border-blue-400 hover:text-blue-700"
+                          >
+                            {vendorCopyState === "copied"
+                              ? "Kopieret"
+                              : vendorCopyState === "error"
+                                ? "Fejl"
+                                : "Kopier"}
+                          </button>
+                        </div>
                         {!isExpanded && vendor.products.length > 0 && (
                           <p className="mt-1 text-[11px] text-slate-500">
                             {vendor.products

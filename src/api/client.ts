@@ -46,6 +46,7 @@ const handleConnectivityError = (error: unknown) => {
 apiClient.interceptors.response.use(
   (response) => {
     markApiConnected();
+    useAuthStore.getState().setAuthError(null);
     return response;
   },
   async (error: AxiosError) => {
@@ -66,23 +67,38 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
+        const encodedRefreshToken = encodeURIComponent(refreshToken);
         // Call the specific Cloud Factory refresh endpoint
         const { data } = await axios.get(
-          `https://portal.api.cloudfactory.dk/Authenticate/ExchangeRefreshToken/${refreshToken}`,
+          `https://portal.api.cloudfactory.dk/Authenticate/ExchangeRefreshToken/${encodedRefreshToken}`,
         );
+
+        const refreshedAccessToken =
+          data?.access_token ?? data?.accessToken ?? data?.token;
+        const refreshedRefreshToken =
+          data?.refresh_token ?? data?.refreshToken ?? refreshToken;
+
+        if (!refreshedAccessToken) {
+          throw new Error("Refresh response missing access token");
+        }
 
         // Update the store with new tokens
         useAuthStore
           .getState()
-          .setTokens(data.access_token, data.refresh_token);
+          .setTokens(refreshedAccessToken, refreshedRefreshToken);
 
         // Retry the original request with the new token
-        originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
+        originalRequest.headers.Authorization = `Bearer ${refreshedAccessToken}`;
         return apiClient(originalRequest);
       } catch (refreshError) {
         handleConnectivityError(refreshError);
         // If refresh fails, log the user out
         useAuthStore.getState().logout();
+        useAuthStore
+          .getState()
+          .setAuthError(
+            "Din session er udløbet eller ugyldig. Opdater ACCESS/REFRESH token og prøv igen.",
+          );
         return Promise.reject(refreshError);
       }
     }

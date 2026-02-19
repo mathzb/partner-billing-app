@@ -1,6 +1,8 @@
 services:
   web:
     build: .
+    depends_on:
+      - api
     environment:
       VITE_ACCESS_TOKEN: ${VITE_ACCESS_TOKEN:-}
       VITE_REFRESH_TOKEN: ${VITE_REFRESH_TOKEN:-}
@@ -11,3 +13,17 @@ services:
     ports:
       - "8080:80"
     restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      API_PORT: 3001
+      DISCOUNT_DB_PATH: /app/data/discounts.sqlite
+    volumes:
+      - discounts-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  discounts-data:

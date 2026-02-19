@@ -13,6 +13,7 @@ import {
   useAmountDisplayStore,
   type AmountDisplayMode,
 } from "./store/useAmountDisplayStore";
+import { useAuthStore } from "./store/useAuthStore";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +69,7 @@ function DashboardPage() {
 
 export default function App() {
   const apiStatus = useApiHealthStore((state) => state.status);
+  const authError = useAuthStore((state) => state.authError);
   const amountDisplayMode = useAmountDisplayStore((state) => state.mode);
   const setAmountDisplayMode = useAmountDisplayStore((state) => state.setMode);
   const statusBadge =
@@ -123,6 +125,15 @@ export default function App() {
                 </div>
               </div>
             </header>
+
+            {authError && (
+              <div
+                role="alert"
+                className="rounded-xl border border-rose-300 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800"
+              >
+                {authError}
+              </div>
+            )}
 
             <Routes>
               <Route path="/" element={<DashboardPage />} />

@@ -1,6 +1,39 @@
-# React + TypeScript + Vite
+# Partner Billing App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend (React + Vite) og en lille API-service (Express + SQLite) til at gemme rabatprocenter pr. kunde/produkt.
+
+## Lokal udvikling
+
+Start både frontend og API:
+
+```sh
+npm run dev
+```
+
+- Frontend kører på Vite (default: `http://localhost:5173`)
+- Rabat-API kører på `http://localhost:3001`
+- Vite proxy'er `/api/*` til API-serveren
+
+SQLite database-fil oprettes automatisk i `data/discounts.sqlite`.
+
+### Rabat API (SQLite)
+
+- `GET /api/tenant-discounts` - Hent alle rabatter
+- `POST /api/tenant-discounts` - Opret ny rabat
+- `PATCH /api/tenant-discounts` - Opdater eksisterende rabat
+- `PUT /api/tenant-discounts` - Upsert (bruges af UI)
+- `DELETE /api/tenant-discounts` - Slet rabat
+
+Eksempel payload:
+
+```json
+{
+  "tenantId": "tenant-123",
+  "vendorName": "Microsoft",
+  "productName": "M365 Business Premium",
+  "rate": 12.5
+}
+```
 
 ## Docker
 
@@ -19,6 +52,8 @@ Or use Docker Compose:
 ```sh
 docker compose up --build
 ```
+
+Compose starter både web og API. SQLite-data persisteres i volumen `discounts-data`.
 
 Docker Compose reads `.env` in the project root. Add:
 
