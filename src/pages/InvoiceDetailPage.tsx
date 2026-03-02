@@ -26,6 +26,7 @@ import {
   aggregateVendorsFromSubscriptions,
   type AggregatedVendor,
 } from "../utils/billingCalculations";
+import { copyToClipboard } from "../utils/clipboard";
 
 type CopyState = "idle" | "copied" | "error";
 type CopyStateMap = Record<string, CopyState>;
@@ -331,12 +332,7 @@ export const InvoiceDetailPage = () => {
       const tableText = rows.map((row) => row.join("\t")).join("\n");
 
       try {
-        const clipboardApi =
-          typeof navigator !== "undefined" ? navigator.clipboard : undefined;
-        if (!clipboardApi || typeof clipboardApi.writeText !== "function") {
-          throw new Error("Clipboard API er ikke tilgængelig");
-        }
-        await clipboardApi.writeText(tableText);
+        await copyToClipboard(tableText);
         setVendorCopyStates((prev) => ({ ...prev, [vendorKey]: "copied" }));
         scheduleCopyReset(vendorKey, 2000);
       } catch (error) {

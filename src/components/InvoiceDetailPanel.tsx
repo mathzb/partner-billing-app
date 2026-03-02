@@ -4,6 +4,7 @@ import { X, Receipt, Building2, Package } from "lucide-react";
 import { useInvoiceDetail } from "../hooks/useInvoiceDetail";
 import { useInvoiceTypes } from "../hooks/useInvoiceTypes";
 import { Skeleton } from "./ui/Skeleton";
+import { copyToClipboard } from "../utils/clipboard";
 
 interface Props {
   invoiceNo: string | null;
@@ -54,11 +55,7 @@ export const InvoiceDetailPanel = ({ invoiceNo, onClose }: Props) => {
       .join("\n");
 
     try {
-      const clipboardApi = navigator?.clipboard;
-      if (!clipboardApi || typeof clipboardApi.writeText !== "function") {
-        throw new Error("Clipboard API er ikke tilgængelig");
-      }
-      await clipboardApi.writeText(tableRows);
+      await copyToClipboard(tableRows);
       setCopyState("copied");
       setTimeout(() => setCopyState("idle"), 2000);
     } catch (error) {
