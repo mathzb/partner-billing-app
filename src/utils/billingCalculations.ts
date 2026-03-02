@@ -191,6 +191,7 @@ export type AggregatedVendor = {
       commitment?: string;
       licenses: number;
       amount: number;
+      retailAmount: number;
     }>;
   }>;
 };
@@ -221,6 +222,7 @@ export const aggregateVendorsFromSubscriptions = (
               commitment?: string;
               licenses: number;
               amount: number;
+              retailAmount: number;
             }
           >;
         }
@@ -283,6 +285,7 @@ export const aggregateVendorsFromSubscriptions = (
         commitment: entry.commitment || undefined,
         licenses: 0,
         amount: 0,
+        retailAmount: 0,
       };
       // Refund / credit rows in the billing file have a negative quantity (or
       // invoicingType "Refund").  They represent billing adjustments for seats
@@ -298,6 +301,11 @@ export const aggregateVendorsFromSubscriptions = (
       detailEntry.licenses += entryLicenses;
       const entryAmount = typeof entry.amount === "number" ? entry.amount : 0;
       detailEntry.amount += entryAmount;
+      const entryRetailAmount =
+        typeof entry.retailAmount === "number"
+          ? entry.retailAmount
+          : entryAmount;
+      detailEntry.retailAmount += entryRetailAmount;
       subscriptionEntryAmount += entryAmount;
       productEntry.detailsMap.set(detailKey, detailEntry);
     });

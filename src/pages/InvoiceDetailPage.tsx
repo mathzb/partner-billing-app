@@ -657,11 +657,7 @@ export const InvoiceDetailPage = () => {
                               const productDetailsKey = `${key}::${product.displayName}`;
                               const productDetailsDomId = `${productDetailsKey.replace(/[^a-zA-Z0-9-_]/g, "_")}-details`;
                               const detailEntries = product.details ?? [];
-                              const canShowDetails =
-                                (product.billing?.toLowerCase() === "mixed" ||
-                                  product.commitment?.toLowerCase() ===
-                                    "mixed") &&
-                                detailEntries.length > 1;
+                              const canShowDetails = detailEntries.length > 1;
                               const isProductDetailsExpanded =
                                 expandedProductDetails.has(productDetailsKey);
 
@@ -781,43 +777,123 @@ export const InvoiceDetailPage = () => {
                                     isProductDetailsExpanded && (
                                       <div
                                         id={productDetailsDomId}
-                                        className="border-t border-blue-100/70 bg-blue-50/60 px-4 py-3 text-[11px] text-slate-600 dark:border-blue-900/50 dark:bg-blue-950/20 dark:text-slate-400"
+                                        className="border-t border-blue-100/70 bg-blue-50/60 dark:border-blue-900/50 dark:bg-blue-950/20"
                                       >
-                                        <div className="space-y-2">
+                                        {/* Table header */}
+                                        <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-x-3 bg-blue-100/60 px-4 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-blue-700 dark:bg-blue-950/40 dark:text-blue-400">
+                                          <span>Fakturering + Binding</span>
+                                          <span className="text-right">
+                                            Licenser
+                                          </span>
+                                          <span className="text-right">
+                                            Kostpris
+                                          </span>
+                                          <span className="text-right">
+                                            Listepris
+                                          </span>
+                                          <span className="text-right">
+                                            Beskrivelse
+                                          </span>
+                                        </div>
+                                        <div className="divide-y divide-blue-100/60 dark:divide-blue-900/40">
                                           {detailEntries.map((detail) => {
                                             const detailKey = `${detail.label}-${detail.billing ?? "none"}-${detail.commitment ?? "none"}`;
+                                            const billingDiffers =
+                                              detail.billing &&
+                                              product.billing &&
+                                              detail.billing.toLowerCase() !==
+                                                product.billing.toLowerCase();
+                                            const commitmentDiffers =
+                                              detail.commitment &&
+                                              product.commitment &&
+                                              detail.commitment.toLowerCase() !==
+                                                product.commitment.toLowerCase();
+                                            const hasDiff =
+                                              billingDiffers ||
+                                              commitmentDiffers;
+                                            const costAmt = detail.amount ?? 0;
+                                            const retailAmt =
+                                              detail.retailAmount ?? 0;
+                                            const detailDiscountAmt =
+                                              (retailAmt * discountRate) / 100;
+                                            const detailDiscountedRetail =
+                                              retailAmt - detailDiscountAmt;
                                             return (
                                               <div
                                                 key={`${productDetailsKey}-${detailKey}`}
-                                                className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
+                                                className={`grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] items-center gap-x-3 px-4 py-2 text-[11px] ${
+                                                  hasDiff
+                                                    ? "bg-amber-50/80 dark:bg-amber-950/20"
+                                                    : "bg-white/50 dark:bg-slate-800/20"
+                                                }`}
                                               >
-                                                <div className="font-semibold text-slate-800">
-                                                  {detail.label}
+                                                {/* Col 1: Billing + Commitment badges */}
+                                                <div className="flex flex-wrap items-center gap-1.5">
+                                                  <span
+                                                    className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold ${
+                                                      billingDiffers
+                                                        ? "bg-amber-100 text-amber-800 ring-1 ring-amber-300 dark:bg-amber-900/40 dark:text-amber-300"
+                                                        : "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300"
+                                                    }`}
+                                                  >
+                                                    {translateBillingFrequency(
+                                                      detail.billing,
+                                                    )}{" "}
+                                                    betaling
+                                                  </span>
+                                                  <span className="text-[10px] text-slate-400">
+                                                    +
+                                                  </span>
+                                                  <span
+                                                    className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold ${
+                                                      commitmentDiffers
+                                                        ? "bg-amber-100 text-amber-800 ring-1 ring-amber-300 dark:bg-amber-900/40 dark:text-amber-300"
+                                                        : "bg-slate-100 text-slate-700 dark:bg-slate-700/60 dark:text-slate-300"
+                                                    }`}
+                                                  >
+                                                    {translateCommitmentTerm(
+                                                      detail.commitment,
+                                                    )}{" "}
+                                                    binding
+                                                  </span>
                                                 </div>
-                                                <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold text-slate-600">
-                                                  <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-mono text-blue-900">
+                                                {/* Col 2: Licence count */}
+                                                <div className="text-right">
+                                                  <span className="inline-flex min-w-[2.5rem] justify-center rounded-full bg-blue-600 px-2.5 py-0.5 font-mono text-[12px] font-bold text-white shadow-sm dark:bg-blue-700">
                                                     {formatLicenseCountLabel(
                                                       detail.licenses,
                                                     )}
                                                   </span>
-                                                  <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-mono text-slate-700">
-                                                    Kostpris:{" "}
-                                                    {formatCurrency(
-                                                      detail.amount ?? 0,
-                                                    )}
-                                                  </span>
-                                                  <span className="rounded-full bg-blue-100 px-2 py-0.5 uppercase tracking-wide text-blue-800">
-                                                    Fakturering:{" "}
-                                                    {translateBillingFrequency(
-                                                      detail.billing,
-                                                    )}
-                                                  </span>
-                                                  <span className="rounded-full bg-blue-100 px-2 py-0.5 uppercase tracking-wide text-blue-800">
-                                                    Binding:{" "}
-                                                    {translateCommitmentTerm(
-                                                      detail.commitment,
-                                                    )}
-                                                  </span>
+                                                </div>
+                                                {/* Col 3: Cost */}
+                                                <div className="text-right font-mono text-[11px] font-semibold text-slate-700 dark:text-slate-300">
+                                                  {formatCurrency(costAmt)}
+                                                </div>
+                                                {/* Col 4: Retail / list price */}
+                                                <div className="text-right font-mono text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+                                                  {hasDiscount ? (
+                                                    <div className="flex flex-col items-end leading-tight">
+                                                      <span className="text-[10px] text-slate-400 line-through">
+                                                        {formatCurrency(
+                                                          retailAmt,
+                                                        )}
+                                                      </span>
+                                                      <span>
+                                                        {formatCurrency(
+                                                          detailDiscountedRetail,
+                                                        )}
+                                                      </span>
+                                                    </div>
+                                                  ) : (
+                                                    formatCurrency(retailAmt)
+                                                  )}
+                                                </div>
+                                                {/* Col 5: Description (secondary) */}
+                                                <div
+                                                  className="truncate text-right text-[10px] text-slate-400 dark:text-slate-500"
+                                                  title={detail.label}
+                                                >
+                                                  {detail.label}
                                                 </div>
                                               </div>
                                             );
