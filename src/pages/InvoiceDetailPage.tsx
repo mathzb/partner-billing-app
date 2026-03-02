@@ -14,6 +14,7 @@ import {
   ChevronDown,
   ChevronUp,
   FileText,
+  FileSearch,
   Search,
 } from "lucide-react";
 import { Button } from "../components/ui/Button";
@@ -101,12 +102,6 @@ const formatLicenseCountLabel = (value: number | null | undefined) => {
   return `${formatted} ${numeric === 1 ? "licens" : "licenser"}`;
 };
 
-const statusLabelMap: Record<string, string> = {
-  overdue: "Forfalden",
-  unpaid: "Ubetalt",
-  paid: "Betalt",
-};
-
 const billingFrequencyMap: Record<string, string> = {
   monthly: "Månedlig",
   yearly: "Årlig",
@@ -140,9 +135,6 @@ const translateBillingFrequency = (value: string | null | undefined) =>
 
 const translateCommitmentTerm = (value: string | null | undefined) =>
   translateApiLabel(value, commitmentTermMap);
-
-const getLocalizedStatus = (status: string) =>
-  statusLabelMap[status.toLowerCase()] ?? status;
 
 const pageSizeOptions = [5, 10, 20];
 
@@ -464,34 +456,34 @@ export const InvoiceDetailPage = () => {
     return (
       <section
         key={customer.id}
-        className={`rounded-xl shadow-sm p-5 space-y-3 border ${
+        className={`overflow-hidden rounded-2xl border shadow-sm transition-shadow hover:shadow-md ${
           isReferenceMissing
-            ? "border-amber-300 bg-amber-50/70 ring-1 ring-amber-100"
-            : "border-gray-200 bg-white"
+            ? "border-amber-300 bg-amber-50/60 ring-1 ring-amber-100 dark:border-amber-800 dark:bg-amber-950/30 dark:ring-amber-900"
+            : "border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
         }`}
       >
-        <div className="flex justify-between items-baseline">
+        <div className="flex items-start justify-between gap-3 px-5 pt-5 pb-3">
           <div>
-            <h2 className="text-sm font-semibold text-gray-800">
+            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
               {customer.name}
             </h2>
             {customer.domains.length > 0 && (
-              <p className="text-xs text-gray-500">
+              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                 {customer.domains.join(", ")}
               </p>
             )}
             {customer.references.length > 0 ? (
-              <p className="text-[11px] text-gray-500 mt-1">
+              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
                 Ref.: {customer.references.join(", ")}
               </p>
             ) : (
-              <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700">
+              <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 dark:text-amber-400">
                 <AlertTriangle className="h-3 w-3" /> Reference mangler
               </p>
             )}
           </div>
-          <div className="text-right">
-            <p className="text-sm font-mono font-semibold">
+          <div className="shrink-0 text-right">
+            <p className="text-sm font-mono font-semibold text-slate-900 dark:text-slate-100">
               {hasTenantDiscount ? (
                 <span className="flex flex-col items-end leading-tight">
                   <span className="text-xs text-slate-400 line-through">
@@ -503,26 +495,32 @@ export const InvoiceDetailPage = () => {
                 formatCurrency(totals.totalAmount)
               )}
             </p>
-            <p className="text-[11px] text-gray-400">
+            <p className="text-[11px] text-slate-400 dark:text-slate-500">
               I alt for tenant ({formatQuantityValue(totals.totalLicenses)}{" "}
               enheder)
             </p>
-            <div className="mt-2 text-[11px] font-semibold text-slate-400">
-              Klik på en leverandør for at kopiere tabellen
+            <div className="mt-1.5 text-[11px] font-medium text-slate-400 dark:text-slate-500">
+              Klik på en lev. for at kopiere
             </div>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto scrollbar-thin">
           <table className="min-w-full text-xs">
-            <thead className="bg-gray-50 text-gray-500">
+            <thead className="bg-slate-50/80 dark:bg-slate-800/50">
               <tr>
-                <th className="px-3 py-2 text-left font-medium">Leverandør</th>
-                <th className="px-3 py-2 text-right font-medium">Licenser</th>
-                <th className="px-3 py-2 text-right font-medium">Beløb</th>
+                <th className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  Leverandør
+                </th>
+                <th className="px-4 py-2 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  Licenser
+                </th>
+                <th className="px-4 py-2 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  Beløb
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {vendors.map((vendor) => {
                 const key = `${customer.id}-${vendor.vendorName}`;
                 const isExpanded = expandedVendors.has(key);
@@ -548,8 +546,8 @@ export const InvoiceDetailPage = () => {
 
                 return (
                   <Fragment key={key}>
-                    <tr className="group hover:bg-gray-50">
-                      <td className="px-3 py-2 align-top whitespace-normal">
+                    <tr className="group hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
+                      <td className="px-4 py-2.5 align-top whitespace-normal">
                         <div className="flex w-full items-start justify-between gap-3">
                           <button
                             type="button"
@@ -558,11 +556,11 @@ export const InvoiceDetailPage = () => {
                             className="flex flex-1 items-start justify-between gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                             onClick={() => toggleVendorExpansion(key)}
                           >
-                            <span className="font-medium text-slate-800">
+                            <span className="font-medium text-slate-800 dark:text-slate-200">
                               {vendor.vendorName}
                             </span>
                             <span
-                              className="inline-flex items-center gap-1 rounded-full border border-slate-300 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-600 shadow-sm transition-colors group-hover:border-slate-400 group-hover:text-slate-800"
+                              className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-600 shadow-sm transition-colors group-hover:border-slate-300 group-hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:group-hover:text-slate-200"
                               role="presentation"
                             >
                               {isExpanded ? (
@@ -578,7 +576,7 @@ export const InvoiceDetailPage = () => {
                             onClick={() => {
                               handleCopyVendor(customer, vendor, vendorCopyKey);
                             }}
-                            className="inline-flex items-center rounded-full border border-slate-300 bg-white px-2.5 py-1 text-[10px] font-semibold text-slate-600 transition-colors hover:border-blue-400 hover:text-blue-700"
+                            className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-slate-600 transition-all hover:border-blue-400 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:border-blue-500 dark:hover:text-blue-400"
                           >
                             {vendorCopyState === "copied"
                               ? "Kopieret"
@@ -601,17 +599,17 @@ export const InvoiceDetailPage = () => {
                           </p>
                         )}
                       </td>
-                      <td className="px-3 py-2 text-right align-top">
+                      <td className="px-4 py-2.5 text-right align-top">
                         <div className="flex flex-col items-end text-[11px]">
-                          <span className="font-mono text-sm text-slate-900">
+                          <span className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-100">
                             {formatQuantityValue(vendor.totalLicenses)}
                           </span>
-                          <span className="uppercase tracking-wide text-slate-400">
+                          <span className="uppercase tracking-wide text-slate-400 dark:text-slate-500">
                             {translateQuantityLabel(quantityLabel)}
                           </span>
                         </div>
                       </td>
-                      <td className="px-3 py-2 text-right align-top font-mono">
+                      <td className="px-4 py-2.5 text-right align-top font-mono font-semibold text-slate-800 dark:text-slate-200">
                         {vendorHasDiscount ? (
                           <span className="flex flex-col items-end leading-tight">
                             <span className="text-[11px] text-slate-400 line-through">
@@ -625,10 +623,13 @@ export const InvoiceDetailPage = () => {
                       </td>
                     </tr>
                     {isExpanded && (
-                      <tr className="bg-slate-50/70" id={`${key}-details`}>
-                        <td colSpan={3} className="px-3 pb-3">
-                          <div className="overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-white to-blue-50 shadow-inner">
-                            <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 bg-blue-100/70 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-blue-700">
+                      <tr
+                        className="bg-slate-50/70 dark:bg-slate-800/30"
+                        id={`${key}-details`}
+                      >
+                        <td colSpan={3} className="px-4 pb-4">
+                          <div className="overflow-hidden rounded-xl border border-blue-100 bg-gradient-to-br from-white to-blue-50 shadow-inner dark:border-blue-900 dark:from-slate-900 dark:to-blue-950/30">
+                            <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 bg-blue-100/70 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-blue-700 dark:bg-blue-950/50 dark:text-blue-400">
                               <span>Produkt</span>
                               <span className="text-right">
                                 {translateQuantityLabel(quantityLabel)}
@@ -666,9 +667,9 @@ export const InvoiceDetailPage = () => {
 
                               return (
                                 <Fragment key={`${key}-${product.displayName}`}>
-                                  <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 border-t border-blue-100/70 bg-white/80 px-3 py-2 text-[12px] text-slate-700 transition-colors hover:bg-blue-50/70">
+                                  <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 border-t border-blue-100/70 bg-white/80 px-3 py-2 text-[12px] text-slate-700 transition-colors hover:bg-blue-50/70 dark:border-blue-900/50 dark:bg-slate-900/50 dark:text-slate-300 dark:hover:bg-blue-950/30">
                                     <div>
-                                      <p className="text-xs font-semibold text-slate-900">
+                                      <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                                         {product.displayName}
                                       </p>
                                       {canShowDetails && (
@@ -728,7 +729,7 @@ export const InvoiceDetailPage = () => {
                                           step={0.5}
                                           value={storedDiscount ?? ""}
                                           placeholder="0"
-                                          className="w-20 rounded-lg border border-blue-200 bg-white px-2 py-1 text-right text-[11px] font-semibold text-blue-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500/30"
+                                          className="w-20 rounded-lg border border-blue-200 bg-white px-2 py-1 text-right text-[11px] font-semibold text-blue-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500/30 dark:border-blue-800 dark:bg-slate-800 dark:text-blue-300"
                                           onChange={(event) => {
                                             const nextValue =
                                               event.target.value;
@@ -780,7 +781,7 @@ export const InvoiceDetailPage = () => {
                                     isProductDetailsExpanded && (
                                       <div
                                         id={productDetailsDomId}
-                                        className="border-t border-blue-100/70 bg-blue-50/60 px-4 py-3 text-[11px] text-slate-600"
+                                        className="border-t border-blue-100/70 bg-blue-50/60 px-4 py-3 text-[11px] text-slate-600 dark:border-blue-900/50 dark:bg-blue-950/20 dark:text-slate-400"
                                       >
                                         <div className="space-y-2">
                                           {detailEntries.map((detail) => {
@@ -835,12 +836,14 @@ export const InvoiceDetailPage = () => {
                 );
               })}
               {vendors.length > 0 && (
-                <tr className="bg-gray-50 font-medium">
-                  <td className="px-3 py-2 text-right">I alt</td>
-                  <td className="px-3 py-2 text-right font-mono">
+                <tr className="border-t border-slate-200 bg-slate-50/60 font-semibold dark:border-slate-700 dark:bg-slate-800/40">
+                  <td className="px-4 py-2 text-right text-xs text-slate-600 dark:text-slate-400">
+                    I alt
+                  </td>
+                  <td className="px-4 py-2 text-right font-mono text-slate-800 dark:text-slate-200">
                     {totals.totalLicenses}
                   </td>
-                  <td className="px-3 py-2 text-right font-mono">
+                  <td className="px-4 py-2 text-right font-mono text-slate-800 dark:text-slate-200">
                     {hasTenantDiscount ? (
                       <span className="flex flex-col items-end leading-tight">
                         <span className="text-[11px] text-slate-400 line-through">
@@ -866,131 +869,189 @@ export const InvoiceDetailPage = () => {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-6 w-48" />
-        <Skeleton className="h-48 w-full" />
+        <div className="flex items-center gap-1.5">
+          <Skeleton className="h-3 w-20" />
+          <Skeleton className="h-3 w-4" />
+          <Skeleton className="h-3 w-28" />
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-56" />
+              <Skeleton className="h-4 w-80" />
+            </div>
+            <div className="flex flex-col items-end gap-2">
+              <Skeleton className="h-5 w-20 rounded-full" />
+              <Skeleton className="h-8 w-40" />
+            </div>
+          </div>
+        </div>
+        <Skeleton className="h-16 w-full rounded-2xl" />
+        {[...Array(3)].map((_, idx) => (
+          <Skeleton key={idx} className="h-36 w-full rounded-2xl" />
+        ))}
       </div>
     );
   }
 
   if (isError || !detail) {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">
-        Kunne ikke hente fakturaoplysninger.
+      <div className="flex flex-col items-center gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-10 text-center dark:border-rose-800 dark:bg-rose-950/40">
+        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 dark:bg-rose-900/60">
+          <AlertTriangle className="h-5 w-5 text-rose-600 dark:text-rose-400" />
+        </span>
+        <p className="text-sm font-semibold text-rose-800 dark:text-rose-300">
+          Kunne ikke hente fakturaoplysninger
+        </p>
+        <p className="text-xs text-rose-600 dark:text-rose-400">
+          Prøv at genindlæse siden.
+        </p>
       </div>
     );
   }
 
-  return (
-    <div className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Link
-              to="/"
-              className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800"
-            >
-              <ArrowLeft className="h-4 w-4" /> Tilbage til fakturaer
-            </Link>
-          </div>
-          <h1 className="text-xl font-bold text-gray-900">
-            Faktura nr. {detail.invoiceNumber}
-          </h1>
-          <p className="text-xs text-gray-500">
-            {new Date(detail.postingDate).toLocaleDateString("da-DK", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })}
-            {" - "}
-            Forfalder{" "}
-            {new Date(detail.dueDate).toLocaleDateString("da-DK", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })}
-          </p>
-        </div>
-        <div className="text-right space-y-1">
-          <div className="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
-            <span
-              className={
-                detail.status === "Overdue"
-                  ? "text-red-600"
-                  : detail.status === "Paid"
-                    ? "text-green-600"
-                    : "text-yellow-600"
-              }
-            >
-              {getLocalizedStatus(detail.status)}
-            </span>
-          </div>
-          <p className="text-sm font-semibold text-gray-900">
-            {amountDisplayMode === "both"
-              ? `${formatCurrency(detail.amountInclVat)} inkl. moms / ${formatCurrency(detail.amount)} ekskl. moms`
-              : amountDisplayMode === "exclVat"
-                ? `${formatCurrency(detail.amount)} ekskl. moms`
-                : `${formatCurrency(detail.amountInclVat)} inkl. moms`}
-          </p>
+  const detailStatusCfg = {
+    overdue: {
+      dot: "bg-rose-500",
+      badge:
+        "bg-rose-50 text-rose-700 ring-rose-100 dark:bg-rose-950/60 dark:text-rose-400 dark:ring-rose-900",
+      label: "Forfalden",
+    },
+    paid: {
+      dot: "bg-emerald-500",
+      badge:
+        "bg-emerald-50 text-emerald-700 ring-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-400 dark:ring-emerald-900",
+      label: "Betalt",
+    },
+    unpaid: {
+      dot: "bg-amber-500",
+      badge:
+        "bg-amber-50 text-amber-700 ring-amber-100 dark:bg-amber-950/60 dark:text-amber-400 dark:ring-amber-900",
+      label: "Ubetalt",
+    },
+  };
+  const detailStatusKey =
+    detail.status.toLowerCase() as keyof typeof detailStatusCfg;
+  const invoiceStatusBadge = detailStatusCfg[detailStatusKey] ?? {
+    dot: "bg-slate-400",
+    badge:
+      "bg-slate-50 text-slate-600 ring-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-700",
+    label: detail.status,
+  };
 
-          <div className="flex justify-end gap-2 pt-1">
+  return (
+    <div className="space-y-6">
+      {/* Breadcrumb */}
+      <nav
+        className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400"
+        aria-label="Brødkrumme"
+      >
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1 font-medium text-blue-600 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+        >
+          <ArrowLeft className="h-3 w-3" />
+          Fakturaer
+        </Link>
+        <span aria-hidden>/</span>
+        <span className="font-medium text-slate-700 dark:text-slate-300">
+          {detail.invoiceNumber}
+        </span>
+      </nav>
+
+      {/* Invoice header card */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-2">
+            <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+              Faktura {detail.invoiceNumber}
+            </h1>
+            <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+              <span>
+                Udstedt{" "}
+                <span className="font-semibold text-slate-700 dark:text-slate-300">
+                  {new Date(detail.postingDate).toLocaleDateString("da-DK", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </span>
+              </span>
+              <span>
+                Forfalder{" "}
+                <span className="font-semibold text-slate-700 dark:text-slate-300">
+                  {new Date(detail.dueDate).toLocaleDateString("da-DK", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </span>
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-start gap-2.5 sm:items-end">
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ring-1 ${invoiceStatusBadge.badge}`}
+            >
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${invoiceStatusBadge.dot}`}
+                aria-hidden
+              />
+              {invoiceStatusBadge.label}
+            </span>
+            <p className="tabular text-2xl font-bold text-slate-900 dark:text-slate-100">
+              {amountDisplayMode === "exclVat"
+                ? formatCurrency(detail.amount)
+                : formatCurrency(detail.amountInclVat)}
+            </p>
+            {amountDisplayMode === "both" && (
+              <p className="tabular text-sm font-semibold text-slate-500 dark:text-slate-400">
+                {formatCurrency(detail.amount)}{" "}
+                <span className="text-xs font-normal">ekskl. moms</span>
+              </p>
+            )}
+            <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500">
+              {amountDisplayMode === "exclVat" ? "ekskl. moms" : "inkl. moms"}
+            </p>
             <Button
               size="sm"
-              variant="ghost"
-              leftIcon={<FileText className="h-3 w-3" />}
+              variant="outline"
+              leftIcon={<FileText className="h-3.5 w-3.5" />}
               onClick={() => window.open(detail.invoicePdf)}
-              className="text-xs text-blue-600 hover:text-blue-800"
             >
               Vis PDF
             </Button>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="rounded-xl bg-slate-50/80 p-3 sm:flex sm:items-center sm:justify-between sm:gap-4">
-        <div className="relative w-full max-w-xs">
-          <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-          <input
-            className="h-9 w-full rounded-full border border-slate-200 bg-white/80 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            placeholder="Søg på kundenavn, domæne eller reference..."
-            value={customerSearch}
-            onChange={(event) => {
-              setCustomerSearch(event.target.value);
-              resetToFirstPage();
-            }}
-          />
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs sm:mt-0 sm:justify-end">
-          <div className="flex flex-wrap items-center gap-2">
-            {wlOptions.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => {
-                  setWlFilter(option.value);
-                  resetToFirstPage();
-                }}
-                className={`inline-flex items-center rounded-full border px-3 py-1 transition-colors ${
-                  wlFilter === option.value
-                    ? "border-blue-500 bg-blue-50 text-blue-700"
-                    : "border-slate-200 bg-white/60 text-slate-600 hover:border-blue-400 hover:text-blue-700"
-                }`}
-              >
-                {option.label === "WL 1" ? (
-                  <span>ipnordic</span>
-                ) : option.label === "WL 71" ? (
-                  <span>Enreach København</span>
-                ) : option.label === "WL 74" ? (
-                  <span>Enreach Hjørring</span>
-                ) : (
-                  option.label
-                )}
-              </button>
-            ))}
+      {/* Customer filter bar */}
+      <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative w-full max-w-sm">
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"
+              aria-hidden
+            />
+            <input
+              className="h-9 w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:bg-slate-700"
+              placeholder="Søg kunde, domæne eller reference…"
+              value={customerSearch}
+              onChange={(event) => {
+                setCustomerSearch(event.target.value);
+                resetToFirstPage();
+              }}
+              aria-label="Søg kunder"
+            />
           </div>
-          <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white/60 px-2 py-1 text-[11px] text-slate-600">
-            <span>Pr. side</span>
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+            <label htmlFor="pageSize" className="font-medium">
+              Pr. side
+            </label>
             <select
-              className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-xs text-slate-700 focus:border-blue-500 focus:outline-none"
+              id="pageSize"
+              className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs text-slate-700 focus:border-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
               value={pageSize}
               onChange={(event) => {
                 setPageSize(Number(event.target.value));
@@ -1005,15 +1066,55 @@ export const InvoiceDetailPage = () => {
             </select>
           </div>
         </div>
+
+        {wlOptions.length > 1 && (
+          <div
+            className="flex flex-wrap items-center gap-1.5"
+            role="group"
+            aria-label="Filtrer WL-kode"
+          >
+            {wlOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  setWlFilter(option.value);
+                  resetToFirstPage();
+                }}
+                className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold transition-all ${
+                  wlFilter === option.value
+                    ? "border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-600 dark:bg-blue-950/60 dark:text-blue-400"
+                    : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+                }`}
+              >
+                {option.label === "WL 1"
+                  ? "ipnordic"
+                  : option.label === "WL 71"
+                    ? "Enreach København"
+                    : option.label === "WL 74"
+                      ? "Enreach Hjørring"
+                      : option.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {tenantCards.length > 0 ? (
         <>
           <div className="space-y-4">{tenantCards}</div>
-          <div className="flex flex-col gap-3 rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-3 text-xs text-slate-600 sm:flex-row sm:items-center sm:justify-between">
-            <span>
-              Viser {showingFrom}-{showingTo} af {totalCustomers} kunder
-            </span>
+          <div className="flex flex-col items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-3.5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:items-center">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              Viser{" "}
+              <span className="font-semibold text-slate-700 dark:text-slate-300">
+                {showingFrom}–{showingTo}
+              </span>{" "}
+              af{" "}
+              <span className="font-semibold text-slate-700 dark:text-slate-300">
+                {totalCustomers}
+              </span>{" "}
+              kunder
+            </p>
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -1024,17 +1125,12 @@ export const InvoiceDetailPage = () => {
                   })
                 }
                 disabled={safePage <= 1 || totalCustomers === 0}
-                className={`rounded-full border px-3 py-1 font-medium ${
-                  safePage <= 1 || totalCustomers === 0
-                    ? "cursor-not-allowed border-slate-100 text-slate-300"
-                    : "border-slate-300 bg-white text-slate-700 hover:border-blue-400 hover:text-blue-700"
-                }`}
+                className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:border-blue-400 hover:text-blue-700 disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-blue-500 dark:hover:text-blue-400 dark:disabled:border-slate-800 dark:disabled:text-slate-600"
               >
-                Forrige
+                ← Forrige
               </button>
-              <span className="px-2 py-1 text-[11px] font-semibold text-slate-500">
-                Side {totalCustomers === 0 ? 0 : safePage} /{" "}
-                {totalCustomers === 0 ? 0 : totalPages}
+              <span className="min-w-[4.5rem] text-center text-xs font-semibold text-slate-500 dark:text-slate-400">
+                {totalCustomers === 0 ? "0 / 0" : `${safePage} / ${totalPages}`}
               </span>
               <button
                 type="button"
@@ -1045,21 +1141,25 @@ export const InvoiceDetailPage = () => {
                   })
                 }
                 disabled={safePage >= totalPages || totalCustomers === 0}
-                className={`rounded-full border px-3 py-1 font-medium ${
-                  safePage >= totalPages || totalCustomers === 0
-                    ? "cursor-not-allowed border-slate-100 text-slate-300"
-                    : "border-slate-300 bg-white text-slate-700 hover:border-blue-400 hover:text-blue-700"
-                }`}
+                className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:border-blue-400 hover:text-blue-700 disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-blue-500 dark:hover:text-blue-400 dark:disabled:border-slate-800 dark:disabled:text-slate-600"
               >
-                Næste
+                Næste →
               </button>
             </div>
           </div>
         </>
       ) : (
-        <p className="text-sm text-gray-500">
-          Ingen tenant-opdeling er tilgængelig for denne faktura.
-        </p>
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-slate-200 bg-white py-14 text-center dark:border-slate-800 dark:bg-slate-900">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800">
+            <FileSearch className="h-5 w-5 text-slate-400 dark:text-slate-500" />
+          </span>
+          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            Ingen tenant-opdeling tilgængelig
+          </p>
+          <p className="text-xs text-slate-400 dark:text-slate-500">
+            Denne faktura har ikke nogen underliggende tenants.
+          </p>
+        </div>
       )}
     </div>
   );

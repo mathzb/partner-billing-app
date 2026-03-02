@@ -71,22 +71,24 @@ export const InvoiceDetailPanel = ({ invoiceNo, onClose }: Props) => {
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+        className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
       <div className="fixed inset-y-0 right-0 flex max-w-full pl-10">
-        <div className="w-screen max-w-md transform bg-white shadow-2xl transition-all">
-          <div className="flex h-full flex-col overflow-y-scroll bg-white p-6">
-            <div className="flex items-center justify-between border-b pb-4">
-              <h2 className="flex items-center gap-2 text-xl font-bold">
-                <Receipt className="text-blue-600" /> Faktura nr. {invoiceNo}
+        <div className="w-screen max-w-md transform bg-white shadow-2xl transition-all dark:bg-slate-900">
+          <div className="flex h-full flex-col overflow-y-scroll bg-white p-6 scrollbar-thin dark:bg-slate-900">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-4 dark:border-slate-800">
+              <h2 className="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-slate-100">
+                <Receipt className="h-4 w-4 text-blue-600 dark:text-blue-400" />{" "}
+                Faktura {invoiceNo}
               </h2>
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-500"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                aria-label="Luk panel"
               >
-                <X className="h-6 w-6" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 

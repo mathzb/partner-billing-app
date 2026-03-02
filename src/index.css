@@ -1,35 +1,93 @@
 @import "tailwindcss";
 
+/* Use `.dark` class on <html> instead of OS media query */
+@custom-variant dark (&:is(.dark *));
+
 @layer base {
   :root {
     color-scheme: light;
   }
 
+  .dark {
+    color-scheme: dark;
+  }
+
+  *,
+  *::before,
+  *::after {
+    @apply border-slate-200 dark:border-slate-800;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
   body {
-    @apply bg-slate-100 text-slate-900 antialiased;
+    @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-50;
+    font-feature-settings: "cv11", "ss01";
   }
 
   #root {
     @apply min-h-screen;
   }
+
+  /* Focus ring */
+  :focus-visible {
+    @apply outline-none ring-2 ring-blue-500 ring-offset-2 ring-offset-white dark:ring-offset-slate-950;
+  }
 }
 
 @layer utilities {
+  /* Scrollbar */
   .scrollbar-thin {
     scrollbar-width: thin;
+    scrollbar-color: rgb(148 163 184 / 0.5) transparent;
   }
 
   .scrollbar-thin::-webkit-scrollbar {
-    height: 6px;
-    width: 6px;
+    height: 5px;
+    width: 5px;
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
     border-radius: 9999px;
-    background-color: rgb(148 163 184 / 0.7);
+    background-color: rgb(148 163 184 / 0.5);
   }
 
   .scrollbar-thin::-webkit-scrollbar-track {
     background-color: transparent;
+  }
+
+  /* Card hover lift */
+  .card-lift {
+    @apply transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md;
+  }
+
+  /* Glass surface */
+  .glass {
+    @apply bg-white/80 backdrop-blur-md dark:bg-slate-900/80;
+  }
+
+  /* Metric gradient accents */
+  .metric-gradient-slate {
+    background: linear-gradient(
+      135deg,
+      rgb(248 250 252) 0%,
+      rgb(241 245 249) 100%
+    );
+  }
+  .dark .metric-gradient-slate {
+    background: linear-gradient(135deg, rgb(15 23 42) 0%, rgb(30 41 59) 100%);
+  }
+
+  /* Text balance */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Monospace numbers */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
   }
 }
