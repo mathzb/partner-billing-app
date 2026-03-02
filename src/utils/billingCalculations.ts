@@ -284,8 +284,17 @@ export const aggregateVendorsFromSubscriptions = (
         licenses: 0,
         amount: 0,
       };
-      const entryLicenses =
-        entry.licensQuantity ?? entry.quantity ?? entry.days ?? 0;
+      // Refund / credit rows in the billing file have a negative quantity (or
+      // invoicingType "Refund").  They represent billing adjustments for seats
+      // changing plan — not additional seats — so they must not count toward
+      // the licence tally for their billing/commitment group.
+      const rawQty = entry.quantity ?? entry.days ?? null;
+      const isRefund =
+        entry.invoicingType?.trim().toLowerCase() === "refund" ||
+        (rawQty !== null && rawQty < 0);
+      const entryLicenses = isRefund
+        ? 0
+        : (entry.licensQuantity ?? rawQty ?? 0);
       detailEntry.licenses += entryLicenses;
       const entryAmount = typeof entry.amount === "number" ? entry.amount : 0;
       detailEntry.amount += entryAmount;
