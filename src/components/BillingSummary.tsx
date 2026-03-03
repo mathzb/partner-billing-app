@@ -1,5 +1,5 @@
 // src/components/BillingSummary.tsx
-import { TrendingUp, Calendar, CreditCard, AlertCircle } from "lucide-react";
+import { CreditCard, AlertCircle } from "lucide-react";
 import { calculateBillingMetrics } from "../utils/billingCalculations";
 import { useInvoices } from "../hooks/useInvoices";
 import { useAmountDisplayStore } from "../store/useAmountDisplayStore";
@@ -29,42 +29,6 @@ export const BillingSummary = () => {
   const excl = calculateBillingMetrics(invoices, "exclVat");
 
   const cards: MetricCard[] = [
-    {
-      label: "Samlet omsætning",
-      valueInclVat: formatCurrency(incl.totalInvoiced),
-      valueExclVat: formatCurrency(excl.totalInvoiced),
-      helper:
-        amountDisplayMode === "both"
-          ? `Gns. ${formatCurrency(incl.averageInvoice ?? 0)} / ${formatCurrency(excl.averageInvoice ?? 0)}`
-          : amountDisplayMode === "exclVat"
-            ? `Gns. faktura ${formatCurrency(excl.averageInvoice ?? 0)}`
-            : `Gns. faktura ${formatCurrency(incl.averageInvoice ?? 0)}`,
-      icon: TrendingUp,
-      iconBg: "bg-blue-50 dark:bg-blue-950/60",
-      iconColor: "text-blue-600 dark:text-blue-400",
-      accent: "text-slate-900 dark:text-slate-100",
-      accentDark: "dark:text-slate-100",
-      border: "border-slate-200 dark:border-slate-800",
-      borderDark: "",
-    },
-    {
-      label: "Nuværende måned",
-      valueInclVat: formatCurrency(incl.currentMonthVolume),
-      valueExclVat: formatCurrency(excl.currentMonthVolume),
-      helper:
-        amountDisplayMode === "both"
-          ? `Betalt ${formatCurrency(incl.paidThisMonth)} / ${formatCurrency(excl.paidThisMonth)}`
-          : amountDisplayMode === "exclVat"
-            ? `Betalt denne måned ${formatCurrency(excl.paidThisMonth)}`
-            : `Betalt denne måned ${formatCurrency(incl.paidThisMonth)}`,
-      icon: Calendar,
-      iconBg: "bg-violet-50 dark:bg-violet-950/60",
-      iconColor: "text-violet-600 dark:text-violet-400",
-      accent: "text-violet-700 dark:text-violet-400",
-      accentDark: "",
-      border: "border-violet-200 dark:border-violet-900",
-      borderDark: "",
-    },
     {
       label: "Skyldig saldo",
       valueInclVat: formatCurrency(incl.balanceDue),
@@ -100,10 +64,7 @@ export const BillingSummary = () => {
     amountDisplayMode === "exclVat" ? "ekskl. moms" : "inkl. moms";
 
   return (
-    <section
-      aria-label="Fakturaoversigt"
-      className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
-    >
+    <section aria-label="Fakturaoversigt" className="grid gap-4 sm:grid-cols-2">
       {cards.map((card) => {
         const Icon = card.icon;
         return (
